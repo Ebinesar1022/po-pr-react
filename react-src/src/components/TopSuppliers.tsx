@@ -5,7 +5,11 @@ import LinearProgress from '@mui/material/LinearProgress';
 import type { SupplierValue } from '../metrics';
 
 function fmtCurrency(n: number) {
-  return '₹ ' + Math.round(n).toLocaleString('en-IN');
+  return new Intl.NumberFormat('en-AU', {
+    style: 'currency',
+    currency: 'AUD',
+    maximumFractionDigits: 0
+  }).format(Math.round(n));
 }
 
 export default function TopSuppliers({ suppliers }: { suppliers: SupplierValue[] }) {
@@ -17,13 +21,17 @@ export default function TopSuppliers({ suppliers }: { suppliers: SupplierValue[]
         Top Suppliers by PO Value
       </Typography>
       {suppliers.length === 0 && (
-        <Typography variant="body2" color="text.secondary">No purchase order data available.</Typography>
+        <Typography variant="body2" color="text.secondary">
+          No purchase order data available.
+        </Typography>
       )}
       {suppliers.map((s) => (
         <Box key={s.name} sx={{ mb: 1.75 }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
             <Typography variant="body2">{s.name}</Typography>
-            <Typography variant="body2" fontWeight={700}>{fmtCurrency(s.value)}</Typography>
+            <Typography variant="body2" fontWeight={700}>
+              {fmtCurrency(s.value)}
+            </Typography>
           </Box>
           <LinearProgress
             variant="determinate"
