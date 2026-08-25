@@ -4,16 +4,36 @@ function num(n: unknown): number {
   return Number(n) || 0;
 }
 
+function firstString(...values: unknown[]): string | undefined {
+  for (const value of values) {
+    if (typeof value === 'string' && value.trim()) return value;
+    if (typeof value === 'number' && Number.isFinite(value)) return String(value);
+  }
+  return undefined;
+}
+
 function refId(field: unknown): string {
-  if (field && typeof field === 'object' && 'ID' in (field as any)) {
-    return String((field as any).ID);
+  if (Array.isArray(field)) {
+    return refId(field[0]);
+  }
+  if (field && typeof field === 'object') {
+    const obj = field as any;
+    const id = firstString(obj.ID, obj.id, obj.value, obj.record_id);
+    if (id) return id;
   }
   return String(field ?? '');
 }
 
 function refLabel(field: unknown): string {
-  if (field && typeof field === 'object' && 'display_value' in (field as any)) {
-    return String((field as any).display_value ?? refId(field));
+  if (Array.isArray(field)) {
+    return field.map(refLabel).filter(Boolean).join(', ');
+  }
+  if (field && typeof field === 'object') {
+    const obj = field as any;
+    const label =
+      firstString(obj.display_value, obj.displayValue, obj.name, obj.Name, obj.label, obj.Label, obj.value) ||
+      refId(field);
+    if (label && label !== '[object Object]') return label;
   }
   return String(field ?? '');
 }
@@ -44,6 +64,7 @@ export interface StatusBreakdown {
 }
 
 export interface SupplierValue {
+  zc_display_value?: string;
   name: string;
   value: number;
 }
@@ -117,7 +138,7 @@ export function buildKpis(purchaseOrders: PurchaseOrder[], purchaseReceives: Pur
 export function buildTopSuppliers(purchaseOrders: PurchaseOrder[], limit = 5): SupplierValue[] {
   const totals = new Map<string, number>();
   purchaseOrders.forEach((po) => {
-    const name = refLabel(po.Supplier_Name) || 'Unknown Supplier';
+    const name = refLabel(po.Supplier_Name.zc_display_value) || 'Unknown Supplier';
     totals.set(name, (totals.get(name) || 0) + num(po.Grand_Total));
   });
   return Array.from(totals.entries())
