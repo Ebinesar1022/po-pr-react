@@ -6,7 +6,7 @@ import type { PurchaseOrder, PurchaseReceive, WarehouseData } from './types';
  * "All_<FormName>" — verify these in your app before use.
  * =================================================== */
 export const CONFIG = {
-  appName: 'divina-foods', // <-- confirm
+  appName: 'divina-foods', 
   reports: {
     purchaseOrder: 'Purchase_Order_Report',
     purchaseReceive: 'Purchase_Receive_Report',
@@ -17,20 +17,13 @@ export const CONFIG = {
 
 async function fetchReport<T>(reportName: string): Promise<T[]> {
   const resp = await window.ZOHO.CREATOR.DATA.getRecords({
-    appName: CONFIG.appName,
-    reportName,
-    maxRecords: 1000
+    app_name: CONFIG.appName,
+    report_name: reportName,
+    field_config: 'all',
+    max_records: 1000
   });
-  return (resp && resp.data ? resp.data : []) as T[];
-}
-
-/**
- * Widget SDK v2 handshake. A single promise — no separate
- * embeddedApp.on('PageLoad', ...) + embeddedApp.init() pair.
- * Call this once, then fetch data once it resolves.
- */
-export function initZoho(): Promise<void> {
-  return window.ZOHO.CREATOR.init().then(() => undefined);
+  if (resp?.code !== 3000 || !resp.data) return [];
+  return resp.data as T[];
 }
 
 export async function loadWarehouseData(): Promise<WarehouseData> {

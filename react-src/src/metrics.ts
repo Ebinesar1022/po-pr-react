@@ -63,35 +63,19 @@ export interface MonthlySeriesPoint {
 const FAILED_INSPECTION_VALUES = ['failed', 'rejected', 'failed inspection'];
 
 /**
- * Classifies every Purchase Order as Received / Partially Received /
- * Not Received by matching its linked Purchase_Receive record(s).
- * A PO with no matching receive at all counts as Not Received.
+ * Classifies every Purchase Order by its Status field, which the
+ * Purchase_Order_Report form maintains directly as one of
+ * "Received" / "Partially Received" / "Not Received".
  */
-export function buildStatusBreakdown(
-  purchaseOrders: PurchaseOrder[],
-  purchaseReceives: PurchaseReceive[]
-): StatusBreakdown {
-  const receivesByPO = new Map<string, PurchaseReceive[]>();
-  purchaseReceives.forEach((pr) => {
-    const poId = refId(pr.Purchase_Order_No);
-    if (!receivesByPO.has(poId)) receivesByPO.set(poId, []);
-    receivesByPO.get(poId)!.push(pr);
-  });
-
+export function buildStatusBreakdown(purchaseOrders: PurchaseOrder[]): StatusBreakdown {
   let received = 0;
   let partiallyReceived = 0;
   let notReceived = 0;
 
   purchaseOrders.forEach((po) => {
-    const matches = receivesByPO.get(po.ID) || [];
-    if (matches.length === 0) {
-      notReceived++;
-      return;
-    }
-    const totalPending = matches.reduce((s, pr) => s + num(pr.Total_Pending_Quantity), 0);
-    const totalReceived = matches.reduce((s, pr) => s + num(pr.Total_Received_Quantity), 0);
-    if (totalPending === 0 && totalReceived > 0) received++;
-    else if (totalReceived > 0 && totalPending > 0) partiallyReceived++;
+    const status = String(po.Status || '').toLowerCase();
+    if (status === 'received') received++;
+    else if (status === 'partially received') partiallyReceived++;
     else notReceived++;
   });
 
@@ -99,7 +83,7 @@ export function buildStatusBreakdown(
 }
 
 export function buildKpis(purchaseOrders: PurchaseOrder[], purchaseReceives: PurchaseReceive[]): Kpis {
-  const status = buildStatusBreakdown(purchaseOrders, purchaseReceives);
+  const status = buildStatusBreakdown(purchaseOrders);
   const totalPOValue = purchaseOrders.reduce((s, po) => s + num(po.Grand_Total), 0);
   const suppliersInvolved = new Set(purchaseOrders.map((po) => refId(po.Supplier_Name))).size;
   const pendingReceipts = purchaseReceives.filter((pr) => num(pr.Total_Pending_Quantity) > 0).length;

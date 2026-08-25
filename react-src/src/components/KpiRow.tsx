@@ -2,8 +2,8 @@ import Grid from '@mui/material/Grid';
 import DescriptionIcon from '@mui/icons-material/Description';
 import PendingActionsIcon from '@mui/icons-material/PendingActions';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
-import ReportProblemIcon from '@mui/icons-material/ReportProblem';
-import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee';
+import GppMaybeIcon from '@mui/icons-material/GppMaybe';
+import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import GroupsIcon from '@mui/icons-material/Groups';
 import KpiCard from './KpiCard';
@@ -31,11 +31,11 @@ export default function KpiRow({ kpis }: { kpis: Kpis }) {
         <KpiCard icon={LocalShippingIcon} value={fmtInt(kpis.pendingReceipts)} label="Pending Receipts" color={KPI_COLORS.green} />
       </Grid>
       <Grid item xs={12} sm={6} md={3}>
-        <KpiCard icon={ReportProblemIcon} value={fmtInt(kpis.failedInspection)} label="Failed Inspection" color={KPI_COLORS.red} />
+        <KpiCard icon={GppMaybeIcon} value={fmtInt(kpis.failedInspection)} label="Failed Inspection" color={KPI_COLORS.red} />
       </Grid>
 
       <Grid item xs={12} sm={6} md={4}>
-        <KpiCard icon={CurrencyRupeeIcon} value={fmtCurrency(kpis.totalPOValue)} label="Total PO Value" color={KPI_COLORS.purple} />
+        <KpiCard icon={AccountBalanceWalletIcon} value={fmtCurrency(kpis.totalPOValue)} label="Total PO Value" color={KPI_COLORS.purple} />
       </Grid>
       <Grid item xs={12} sm={6} md={4}>
         <KpiCard

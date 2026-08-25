@@ -6,6 +6,7 @@ export default defineConfig({
   base: './',
   build: {
     outDir: '../poz/app/react',
-    emptyOutDir: true
+    emptyOutDir: true,
+    chunkSizeWarningLimit: 800,
   }
 });

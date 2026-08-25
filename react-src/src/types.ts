@@ -4,6 +4,7 @@ export interface PurchaseOrder {
   PO_Date: string;
   Supplier_Name: { ID: string; display_value?: string } | string;
   Grand_Total: number | string;
+  Status: string;
 }
 
 export interface PurchaseReceive {

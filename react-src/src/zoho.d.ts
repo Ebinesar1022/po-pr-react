@@ -25,10 +25,11 @@ declare global {
         init: () => Promise<ZohoInitData>;
         DATA: {
           getRecords: (config: {
-            appName: string;
-            reportName: string;
-            maxRecords?: number;
+            app_name: string;
+            report_name: string;
             criteria?: string;
+            field_config?: string;
+            max_records?: number;
           }) => Promise<ZohoGetRecordsResponse>;
         };
       };

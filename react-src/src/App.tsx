@@ -9,7 +9,7 @@ import StatusDonut from './components/StatusDonut';
 import TopSuppliers from './components/TopSuppliers';
 import MonthlyBarChart from './components/MonthlyBarChart';
 import LatestReceivesTable from './components/LatestReceivesTable';
-import { initZoho, loadWarehouseData } from './api';
+import { loadWarehouseData } from './api';
 import type { WarehouseData } from './types';
 import { buildKpis, buildStatusBreakdown, buildTopSuppliers, buildMonthlySeries, sortLatestReceives } from './metrics';
 
@@ -23,9 +23,7 @@ export default function App() {
   const [errorMsg, setErrorMsg] = useState('');
 
   useEffect(() => {
-    // Widget SDK v2: a single promise, no embeddedApp.on/init pair.
-    initZoho()
-      .then(() => loadWarehouseData())
+    loadWarehouseData()
       .then((result) => {
         setData(result);
         setState('ready');
@@ -37,7 +35,7 @@ export default function App() {
   }, []);
 
   const kpis = useMemo(() => buildKpis(data.purchaseOrders, data.purchaseReceives), [data]);
-  const status = useMemo(() => buildStatusBreakdown(data.purchaseOrders, data.purchaseReceives), [data]);
+  const status = useMemo(() => buildStatusBreakdown(data.purchaseOrders), [data]);
   const topSuppliers = useMemo(() => buildTopSuppliers(data.purchaseOrders), [data]);
   const monthlySeries = useMemo(() => buildMonthlySeries(data.purchaseOrders, data.purchaseReceives), [data]);
   const latestReceives = useMemo(() => sortLatestReceives(data.purchaseReceives), [data]);
