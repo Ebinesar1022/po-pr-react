@@ -13,7 +13,7 @@ import { loadWarehouseData } from './api';
 import type { WarehouseData } from './types';
 import { buildKpis, buildStatusBreakdown, buildTopSuppliers, buildMonthlySeries, sortLatestReceives } from './metrics';
 
-const EMPTY: WarehouseData = { purchaseOrders: [], purchaseReceives: [] };
+const EMPTY: WarehouseData = { purchaseOrders: [], purchaseReceives: [], receiveItems: [] };
 
 type LoadState = 'loading' | 'ready' | 'error';
 
@@ -72,7 +72,7 @@ export default function App() {
 
             <MonthlyBarChart points={monthlySeries} />
 
-            <LatestReceivesTable receives={latestReceives} />
+            <LatestReceivesTable receives={latestReceives} receiveItems={data.receiveItems} />
           </>
         )}
       </Box>

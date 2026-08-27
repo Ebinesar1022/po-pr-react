@@ -1,4 +1,4 @@
-import type { PurchaseOrder, PurchaseReceive, WarehouseData } from './types';
+import type { PurchaseOrder, PurchaseReceive, ReceiveItem, WarehouseData } from './types';
 
 /* ================= CONFIGURATION =================
  * Adjust these to match your exact Zoho Creator app/report
@@ -27,9 +27,10 @@ async function fetchReport<T>(reportName: string): Promise<T[]> {
 }
 
 export async function loadWarehouseData(): Promise<WarehouseData> {
-  const [purchaseOrders, purchaseReceives] = await Promise.all([
+  const [purchaseOrders, purchaseReceives, receiveItems] = await Promise.all([
     fetchReport<PurchaseOrder>(CONFIG.reports.purchaseOrder),
-    fetchReport<PurchaseReceive>(CONFIG.reports.purchaseReceive)
+    fetchReport<PurchaseReceive>(CONFIG.reports.purchaseReceive),
+    fetchReport<ReceiveItem>(CONFIG.reports.receiveItems)
   ]);
-  return { purchaseOrders, purchaseReceives };
+  return { purchaseOrders, purchaseReceives, receiveItems };
 }
