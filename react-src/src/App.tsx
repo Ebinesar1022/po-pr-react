@@ -12,6 +12,8 @@ import LatestReceivesTable from './components/LatestReceivesTable';
 import { loadWarehouseData } from './api';
 import type { WarehouseData } from './types';
 import { buildKpis, buildStatusBreakdown, buildTopSuppliers, buildMonthlySeries, sortLatestReceives } from './metrics';
+import { isWithinRange, parseAppDate } from './dateRange';
+import type { DateRangeValue } from './dateRange';
 
 const EMPTY: WarehouseData = { purchaseOrders: [], purchaseReceives: [], receiveItems: [] };
 
@@ -21,6 +23,7 @@ export default function App() {
   const [data, setData] = useState<WarehouseData>(EMPTY);
   const [state, setState] = useState<LoadState>('loading');
   const [errorMsg, setErrorMsg] = useState('');
+  const [dateRange, setDateRange] = useState<DateRangeValue>({ start: null, end: null });
 
   useEffect(() => {
     loadWarehouseData()
@@ -34,15 +37,27 @@ export default function App() {
       });
   }, []);
 
-  const kpis = useMemo(() => buildKpis(data.purchaseOrders, data.purchaseReceives), [data]);
-  const status = useMemo(() => buildStatusBreakdown(data.purchaseOrders), [data]);
-  const topSuppliers = useMemo(() => buildTopSuppliers(data.purchaseOrders), [data]);
-  const monthlySeries = useMemo(() => buildMonthlySeries(data.purchaseOrders, data.purchaseReceives), [data]);
-  const latestReceives = useMemo(() => sortLatestReceives(data.purchaseReceives), [data]);
+  // Filter by the header's date range before anything downstream sees the
+  // data. Purchase Orders are scoped by PO_Date, Purchase Receives by
+  // Receive_Date — an unset range ("All Time") passes everything through.
+  const purchaseOrders = useMemo(
+    () => data.purchaseOrders.filter((po) => isWithinRange(parseAppDate(po.PO_Date), dateRange)),
+    [data.purchaseOrders, dateRange]
+  );
+  const purchaseReceives = useMemo(
+    () => data.purchaseReceives.filter((pr) => isWithinRange(parseAppDate(pr.Receive_Date), dateRange)),
+    [data.purchaseReceives, dateRange]
+  );
+
+  const kpis = useMemo(() => buildKpis(purchaseOrders, purchaseReceives), [purchaseOrders, purchaseReceives]);
+  const status = useMemo(() => buildStatusBreakdown(purchaseOrders), [purchaseOrders]);
+  const topSuppliers = useMemo(() => buildTopSuppliers(purchaseOrders), [purchaseOrders]);
+  const monthlySeries = useMemo(() => buildMonthlySeries(purchaseOrders, purchaseReceives), [purchaseOrders, purchaseReceives]);
+  const latestReceives = useMemo(() => sortLatestReceives(purchaseReceives), [purchaseReceives]);
 
   return (
     <Box sx={{ bgcolor: 'background.default', minHeight: '100vh' }}>
-      <Header />
+      <Header dateRange={dateRange} onDateRangeChange={setDateRange} />
       <Box sx={{ px: 4, py: 3 }}>
         {state === 'loading' && (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, py: 6, justifyContent: 'center' }}>

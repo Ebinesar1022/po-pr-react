@@ -1,22 +1,15 @@
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import Button from '@mui/material/Button';
-import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-// import FilterListIcon from '@mui/icons-material/FilterList';
+import DateRangeFilter from './DateRangeFilter';
+import type { DateRangeValue } from '../dateRange';
 
-export default function Header({ dateRangeLabel = 'May 1 – May 18, 2025' }: { dateRangeLabel?: string }) {
-  const pillSx = {
-    color: '#fff',
-    borderColor: 'rgba(255,255,255,0.35)',
-    bgcolor: 'rgba(255,255,255,0.06)',
-    borderRadius: 2,
-    textTransform: 'none',
-    fontWeight: 600,
-    px: 2,
-    '&:hover': { borderColor: 'rgba(255,255,255,0.6)', bgcolor: 'rgba(255,255,255,0.12)' }
-  };
-
+export default function Header({
+  dateRange,
+  onDateRangeChange
+}: {
+  dateRange: DateRangeValue;
+  onDateRangeChange: (range: DateRangeValue) => void;
+}) {
   return (
     <Box
       sx={{
@@ -35,12 +28,7 @@ export default function Header({ dateRangeLabel = 'May 1 – May 18, 2025' }: { 
         Purchase Order &amp; Receive Performance Report
       </Typography>
       <Box sx={{ display: 'flex', gap: 1.5 }}>
-        <Button variant="outlined" startIcon={<CalendarTodayIcon fontSize="small" />} endIcon={<ExpandMoreIcon />} sx={pillSx}>
-          {dateRangeLabel}
-        </Button>
-        {/* <Button variant="outlined" startIcon={<FilterListIcon fontSize="small" />} sx={pillSx}>
-          Filters
-        </Button> */}
+        <DateRangeFilter value={dateRange} onChange={onDateRangeChange} />
       </Box>
     </Box>
   );
